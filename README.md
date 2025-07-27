@@ -4,6 +4,9 @@ This is my final project
 
 - **Setup Django**
 ```bash
+python -m venv venv  # create a virtuel environment
+pip install -r requirements.txt  # install all requirements need for this project
+# these are the commands i used to setup the project
 django-admin startproject mart_africa
 python manage.py startapp users  # for my user auth and management
 python manage.py startapp products  # for products management
