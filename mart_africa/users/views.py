@@ -181,7 +181,7 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ShippingAddressView(generics.RetrieveUpdateCreateAPIView):
+class ShippingAddressView(generics.RetrieveUpdateAPIView):
     """
     Get, create or update user's shipping address - Users can only manage their own address
     """

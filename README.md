@@ -12,6 +12,8 @@ python manage.py startapp users  # for my user auth and management
 python manage.py startapp products  # for products management
 python manage.py startapp orders # for order management
 python manage.py startapp categories
+# Test Db connection
+python manage.py dbshell
 ```
 #### Project Structure 
 - **mart_africa/**
