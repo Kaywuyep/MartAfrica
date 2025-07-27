@@ -12,8 +12,10 @@ python manage.py startapp users  # for my user auth and management
 python manage.py startapp products  # for products management
 python manage.py startapp orders # for order management
 python manage.py startapp reviews
-# Test Db connection
+# Test Db
 python manage.py dbshell
+```
+
 ```
 #### Project Structure 
 - **mart_africa/**
@@ -25,9 +27,9 @@ python manage.py dbshell
 - │   └── urls.py
 - └── apps/
 -    ├── accounts/     # User authentication
--    ├── products/     # Product management
+-   ├── products/     # Product management
 -    ├── orders/       # Order processing
--    └── categories/     # Category handling
+-   └── categories/     # Category handling
 
 - Install drf-yasg for Swagger documentation.
 Configure Swagger to automatically document all APIs. The documentation should be available at /swagger/.
