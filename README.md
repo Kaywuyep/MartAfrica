@@ -11,18 +11,18 @@ python manage.py startapp orders # for order management
 python manage.py startapp categories
 ```
 #### Project Structure 
-- mart_africa/
-├── requirements.txt
-├── .env
-|-- README.md
-├── mart_africa/
-│   ├── settings.py
-│   └── urls.py
-└── apps/
-    ├── accounts/     # User authentication
-    ├── products/     # Product management
-    ├── orders/       # Order processing
-    └── categories/     # Category handling
+- **mart_africa/**
+- ├── requirements.txt
+- ├── .env
+- |-- README.md
+- ├── mart_africa/
+- │   ├── settings.py
+- │   └── urls.py
+- └── apps/
+-    ├── accounts/     # User authentication
+-   ├── products/     # Product management
+-    ├── orders/       # Order processing
+-   └── categories/     # Category handling
 
 - Install drf-yasg for Swagger documentation.
 Configure Swagger to automatically document all APIs. The documentation should be available at /swagger/.
