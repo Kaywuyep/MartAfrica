@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Category, Product, ProductImage, Review, Wishlist
+from reviews.admin import ReviewInline
+from .models import Category, Product, ProductImage, Wishlist
 
 
 class ProductImageInline(admin.TabularInline):
@@ -17,13 +18,6 @@ class ProductImageInline(admin.TabularInline):
             )
         return "No image"
     image_preview.short_description = "Preview"
-
-
-class ReviewInline(admin.TabularInline):
-    model = Review
-    extra = 0
-    fields = ('user', 'rating', 'comment', 'created_at')
-    readonly_fields = ('created_at',)
 
 
 @admin.register(Category)
@@ -46,7 +40,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at'
     )
     list_filter = (
-        'category', 'brand', 'created_at', 'sizes', 'colors'
+        'category', 'brand', 'created_at', 'sizes'
     )
     search_fields = ('name', 'description', 'brand')
     ordering = ('-created_at',)
@@ -61,7 +55,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'brand', 'category', 'user')
         }),
         ('Product Details', {
-            'fields': ('sizes', 'colors', 'price')
+            'fields': ('sizes', 'price')
         }),
         ('Inventory', {
             'fields': ('total_qty', 'total_sold', 'qty_left')
@@ -109,25 +103,6 @@ class ProductImageAdmin(admin.ModelAdmin):
             )
         return "No image"
     image_preview.short_description = "Preview"
-
-
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('product', 'user', 'rating', 'created_at')
-    list_filter = ('rating', 'created_at')
-    search_fields = ('product__name', 'user__fullname', 'comment')
-    ordering = ('-created_at',)
-    readonly_fields = ('created_at', 'updated_at')
-
-    fieldsets = (
-        ('Review Information', {
-            'fields': ('product', 'user', 'rating', 'comment')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
 
 
 @admin.register(Wishlist)

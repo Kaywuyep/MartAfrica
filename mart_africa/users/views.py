@@ -9,8 +9,8 @@ from django.contrib.auth import logout
 from .models import User, ShippingAddress
 from .permissions import IsAdminUser, IsRegularUser, IsOwnerOrAdmin
 from .serializers import (
-    UserSerializer, UserRegistrationSerializer, UserLoginSerializer,
-    CustomTokenObtainPairSerializer, UserUpdateSerializer, 
+    UserSerializer, UserRegistrationSerializer,
+    CustomTokenObtainPairSerializer, UserUpdateSerializer,
     PasswordChangeSerializer, ShippingAddressSerializer
 )
 

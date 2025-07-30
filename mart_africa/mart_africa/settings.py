@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'drf_yasg',
+    # 'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -111,8 +111,21 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    ]
-}  # this is to allow all users to access the API
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MartAfrica API',
+    'DESCRIPTION': 'API documentation for MartAfrica',
+    'VERSION': '1.0.0',
+    # optionally:
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
 
 AUTH_USER_MODEL = 'users.User'
 

@@ -3,18 +3,37 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import F, Q, Avg, Count
+from django_filters import rest_framework as django_filters
+from django.db.models import F, Avg
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
-from .models import Product, ProductImage, Category, Review, Wishlist
+from .models import Product, ProductImage, Category, Wishlist
 from .serializers import (
     ProductListSerializer, ProductDetailSerializer, ProductCreateSerializer,
-    ProductUpdateSerializer, CategorySerializer, ReviewSerializer, 
+    ProductUpdateSerializer, CategorySerializer,
     WishlistSerializer, ProductImageSerializer
 )
 from users.permissions import IsAdminUser, IsOwnerOrAdmin, IsAdminOrReadOnly
 # type: ignore
+
+
+# Custom FilterSet for Product to handle JSONField
+class ProductFilterSet(django_filters.FilterSet):
+    # Custom filter for sizes JSONField
+    sizes = django_filters.CharFilter(
+        method='filter_sizes', help_text='Filter by size (e.g., S, M, L, XL)')
+
+    def filter_sizes(self, queryset, name, value):
+        """
+        Custom filtering for sizes JSONField
+        Assumes sizes is stored as a list in JSON format
+        """
+        return queryset.filter(sizes__icontains=value)
+
+    class Meta:
+        model = Product
+        fields = ['category', 'brand']  # Removed 'sizes' from auto-filtering
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
@@ -73,7 +92,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'brand', 'sizes', 'colors']
+    filterset_class = ProductFilterSet  # Changed from filterset_fields to filterset_class
     search_fields = ['name', 'description', 'brand']
     ordering_fields = ['price', 'created_at', 'average_rating', 'total_sold']
     ordering = ['-created_at']
@@ -130,6 +149,9 @@ class ProductListCreateView(generics.ListCreateAPIView):
             OpenApiParameter(
                 'brand', OpenApiTypes.STR,
                 description='Filter by brand'),
+            OpenApiParameter(
+                'sizes', OpenApiTypes.STR,
+                description='Filter by size (e.g., S, M, L, XL)'),
             OpenApiParameter(
                 'min_price', OpenApiTypes.NUMBER,
                 description='Minimum price filter'),
@@ -296,63 +318,6 @@ class ProductImageUploadView(APIView):
             }, status=status.HTTP_404_NOT_FOUND)
 
 
-class ProductReviewView(generics.ListCreateAPIView):
-    """
-    List reviews for a product or create new review
-    """
-    serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_permissions(self):
-        if self.request.method == 'POST':
-            return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
-
-    def get_queryset(self):
-        product_id = self.kwargs['product_id']
-        return Review.objects.filter(product_id=product_id).select_related('user')
-
-    @extend_schema(
-        summary="List product reviews",
-        description="Get all reviews for a specific product",
-        responses={200: ReviewSerializer(many=True)}
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @extend_schema(
-        summary="Create product review",
-        description="Create a review for a product - Authentication required",
-        request=ReviewSerializer,
-        responses={201: ReviewSerializer}
-    )
-    def post(self, request, *args, **kwargs):
-        product_id = self.kwargs['product_id']
-
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return Response({
-                'error': 'Product not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        # Check if user already reviewed this product
-        if Review.objects.filter(product=product, user=request.user).exists():
-            return Response({
-                'error': 'You have already reviewed this product'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(product=product)
-            return Response({
-                'message': 'Review created successfully',
-                'review': serializer.data
-            }, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class WishlistView(generics.ListCreateAPIView):
     """
     List user's wishlist or add product to wishlist
@@ -468,7 +433,7 @@ class AdminLowStockView(generics.ListAPIView):
     def get_queryset(self):
         threshold = int(self.request.query_params.get('threshold', 5))
         return Product.objects.filter(
-            total_qty__lte=models.F('total_sold') + threshold
+            total_qty__lte=F('total_sold') + threshold
         ).order_by('total_qty')
 
     @extend_schema(

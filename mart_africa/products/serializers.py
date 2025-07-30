@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.db import transaction
-from .models import Product, ProductImage, Category, Review, Wishlist
 from users.serializers import UserSerializer
+from reviews.serializers import ReviewSerializer
+from .models import Product, ProductImage, Category, Wishlist
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -36,27 +37,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url
         return None
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    """
-    Product Review serializer
-    """
-    user = UserSerializer(read_only=True)
-    user_name = serializers.CharField(source='user.fullname', read_only=True)
-
-    class Meta:
-        model = Review
-        fields = [
-            'id', 'user', 'user_name', 'rating', 'comment',
-            'created_at', 'updated_at'
-        ]
-        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
-
-    def create(self, validated_data):
-        # User is set from the view
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -119,7 +99,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'description', 'brand', 'category', 'category_id',
-            'sizes', 'colors', 'user', 'images', 'reviews', 'price',
+            'sizes', 'user', 'images', 'reviews', 'price',
             'total_qty', 'total_sold', 'qty_left', 'total_reviews',
             'average_rating', 'is_in_stock', 'is_low_stock',
             'created_at', 'updated_at'
@@ -169,16 +149,9 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'name', 'description', 'brand', 'category_id', 'sizes',
-            'colors', 'price', 'total_qty', 'uploaded_images'
+            'price', 'total_qty', 'uploaded_images'
         ]
 
-    # def validate_category_id(self, value):
-    #     """Validate category exists"""
-    #     try:
-    #         Category.objects.get(id=value)
-    #     except Category.DoesNotExist:
-    #         raise serializers.ValidationError("Category does not exist")
-    #     return value
     def validate_category_id(self, value):
         """Validate category exists"""
         if not Category.objects.filter(id=value).exists():
@@ -230,16 +203,8 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'name', 'description', 'brand', 'category_id', 'sizes',
-            'colors', 'price', 'total_qty', 'total_sold'
+            'price', 'total_qty', 'total_sold'
         ]
-    # def validate_category_id(self, value):
-    #     """Validate category exists"""
-    #     if value:
-    #         try:
-    #             Category.objects.get(id=value)
-    #         except Category.DoesNotExist:
-    #             raise serializers.ValidationError("Category does not exist")
-    #     return value
 
     def validate_category_id(self, value):
         """Validate category exists"""

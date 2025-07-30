@@ -1,18 +1,12 @@
+import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
-from django.db.models import Q, Avg
+from django.db.models import Q
 from rest_framework import status
-import json
-
-from accounts.decorators import is_logged_in, is_admin_user
-from accounts.utils import get_token_from_header, verify_token
-from .models import Product, Category, ProductImage, Review, Wishlist
-from .serializers import (
-    ProductListSerializer, ProductDetailSerializer, 
-    CategorySerializer, ReviewSerializer
-)
+from users.decorators import is_logged_in, is_admin_user
+from .models import Product, Category, Wishlist
 
 
 @csrf_exempt
@@ -235,74 +229,6 @@ def create_product_function(request):
     except Exception as e:
         return JsonResponse({
             'error': 'Failed to create product',
-            'message': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-@is_logged_in
-def add_product_review_function(request, product_id):
-    """
-    Function-based view to add product review (Node.js style)
-    Equivalent to: POST /api/products/:id/reviews/
-    """
-    try:
-        product = Product.objects.get(id=product_id)
-
-        # Check if user already reviewed this product
-        if Review.objects.filter(product=product, user=request.user).exists():
-            return JsonResponse({
-                'error': 'You have already reviewed this product'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        data = json.loads(request.body)
-
-        # Validate required fields
-        if 'rating' not in data:
-            return JsonResponse({
-                'error': 'Rating is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Validate rating range
-        rating = int(data['rating'])
-        if rating < 1 or rating > 5:
-            return JsonResponse({
-                'error': 'Rating must be between 1 and 5'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create review
-        review = Review.objects.create(
-            product=product,
-            user=request.user,  # Available from @is_logged_in decorator
-            rating=rating,
-            comment=data.get('comment', '')
-        )
-
-        return JsonResponse({
-            'message': 'Review added successfully',
-            'review': {
-                'id': review.id,
-                'rating': review.rating,
-                'comment': review.comment,
-                'user_name': review.user.fullname,
-                'userAuthId': request.userAuthId
-            }
-        }, status=status.HTTP_201_CREATED)
-
-    except Product.DoesNotExist:
-        return JsonResponse({
-            'error': 'Product not found'
-        }, status=status.HTTP_404_NOT_FOUND)
-
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'error': 'Invalid JSON data'
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    except Exception as e:
-        return JsonResponse({
-            'error': 'Failed to add review',
             'message': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
