@@ -49,6 +49,7 @@ Configure Swagger to automatically document all APIs. The documentation should b
 - Password change endpoint
 - Secure authentication using Django's built-in features
 ###### 3. API Endpoints
+``` http
 - **Public Endpoints**
 POST /api/register/          # User registration
 POST /api/login/             # User login
@@ -65,6 +66,7 @@ GET/POST/PATCH /api/shipping-address/  # Shipping address CRUD
 GET  /api/admin/dashboard/           # Admin system dashboard
 GET  /api/admin/users/               # List all users
 GET/PATCH/DELETE  /api/admin/users/{id}/          # Get user details CRUD
+```
 
 ###### 4. Role-Based Features:
 - **📊 Admin Dashboard:**
@@ -116,7 +118,7 @@ GET    /api/products/{id}/                # Get product details
 PATCH  /api/products/{id}/                # Update product (Owner/Admin)
 DELETE /api/products/{id}/                # Delete product (Owner/Admin)
 POST   /api/products/{id}/images/         # Upload additional images
-```
+
 ##### Catregories
 GET    /api/products/categories/          # List categories
 POST   /api/products/categories/          # Create category (Admin)
@@ -130,12 +132,14 @@ DELETE /api/products/wishlist/{id}/       # Remove from wishlist
 ##### 🛡️ Admin Endpoints
 GET    /api/products/admin/stats/         # Product statistics
 GET    /api/products/admin/low-stock/     # Low stock products
-
+```
 #### Reviews App Features
 
 ###### 1. Models
 - **Review** – Product reviews with ratings
 
+```
 ###### 2. API Endpoints
 GET   /api/{id}/reviews
 POST  /product/{id}/reviews
+```
