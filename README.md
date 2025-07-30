@@ -54,15 +54,17 @@ Configure Swagger to automatically document all APIs. The documentation should b
 POST /api/register/          # User registration
 POST /api/login/             # User login
 POST /api/refresh/     # Refresh JWT token
-
+```
 - **👤 Regular User Endpoints:**
+```http
 GET  /api/dashboard/         # User personal dashboard
 POST /api/logout/            # User logout
 GET/PATCH /api/profile/      # User profile management
 POST /api/change-password/   # Change password
 GET/POST/PATCH /api/shipping-address/  # Shipping address CRUD
-
+```
 - **🛡️ Admin-Only Endpoints:**
+```http
 GET  /api/admin/dashboard/           # Admin system dashboard
 GET  /api/admin/users/               # List all users
 GET/PATCH/DELETE  /api/admin/users/{id}/          # Get user details CRUD
@@ -118,18 +120,23 @@ GET    /api/products/{id}/                # Get product details
 PATCH  /api/products/{id}/                # Update product (Owner/Admin)
 DELETE /api/products/{id}/                # Delete product (Owner/Admin)
 POST   /api/products/{id}/images/         # Upload additional images
+```
 
 ##### Catregories
+```http
 GET    /api/products/categories/          # List categories
 POST   /api/products/categories/          # Create category (Admin)
 GET    /api/products/categories/{id}/     # Get category details
-
+```
 ##### ❤️ Wishlist
+```http
 GET    /api/products/wishlist/            # Get user wishlist
 POST   /api/products/wishlist/            # Add to wishlist
 DELETE /api/products/wishlist/{id}/       # Remove from wishlist
+```
 
 ##### 🛡️ Admin Endpoints
+```http
 GET    /api/products/admin/stats/         # Product statistics
 GET    /api/products/admin/low-stock/     # Low stock products
 ```
@@ -138,8 +145,8 @@ GET    /api/products/admin/low-stock/     # Low stock products
 ###### 1. Models
 - **Review** – Product reviews with ratings
 
-```
 ###### 2. API Endpoints
+```http
 GET   /api/{id}/reviews
 POST  /product/{id}/reviews
 ```
