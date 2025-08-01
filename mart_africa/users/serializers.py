@@ -90,20 +90,36 @@ class UserLoginSerializer(serializers.Serializer):
         return attrs
 
 
+# class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     """
+#     Custom token serializer to include user data in response
+#     """
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+        
+#         # Add custom claims
+#         token['email'] = user.email
+#         token['fullname'] = user.fullname
+#         token['is_admin'] = user.is_admin
+        
+#         return token
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """
-    Custom token serializer to include user data in response
-    """
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        
-        # Add custom claims
-        token['email'] = user.email
-        token['fullname'] = user.fullname
-        token['is_admin'] = user.is_admin
-        
-        return token
+    username_field = 'email'  # Tell JWT to use email instead of username
+
+    def validate(self, attrs):
+        # Rename "email" to "username" for internal use
+        attrs['username'] = attrs.get('email')
+        return super().validate(attrs)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['user'] = {
+            'email': self.user.email,
+            'fullname': self.user.fullname,
+        }
+        return data
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

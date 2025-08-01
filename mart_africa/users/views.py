@@ -51,12 +51,40 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class CustomTokenObtainPairView(TokenObtainPairView):
+#     """
+#     Custom login view with user data in response
+#     """
+#     serializer_class = CustomTokenObtainPairSerializer
+    
+#     @extend_schema(
+#         summary="User login",
+#         description="Authenticate user and return JWT tokens with user data",
+#         responses={
+#             200: OpenApiResponse(description="Login successful"),
+#             401: OpenApiResponse(description="Invalid credentials")
+#         }
+#     )
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             user = User.objects.get(email=request.data['email'])
+#             tokens = serializer.validated_data
+            
+#             return Response({
+#                 'message': 'Login successful',
+#                 'user': UserSerializer(user).data,
+#                 'tokens': tokens
+#             }, status=status.HTTP_200_OK)
+        
+#         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
     Custom login view with user data in response
     """
     serializer_class = CustomTokenObtainPairSerializer
-    
+
     @extend_schema(
         summary="User login",
         description="Authenticate user and return JWT tokens with user data",
@@ -67,17 +95,21 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user = User.objects.get(email=request.data['email'])
-            tokens = serializer.validated_data
-            
-            return Response({
-                'message': 'Login successful',
-                'user': UserSerializer(user).data,
-                'tokens': tokens
-            }, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception:
+            return Response(
+                {'detail': 'Invalid email or password'},
+                status=status.HTTP_401_UNAUTHORIZED)
+
+        user = serializer.user  # Safely get the authenticated user
+        tokens = serializer.validated_data  # Contains 'access' and 'refresh'
+
+        return Response({
+            'message': 'Login successful',
+            'user': UserSerializer(user).data,
+            'tokens': tokens
+        }, status=status.HTTP_200_OK)
 
 
 class LogoutView(APIView):
