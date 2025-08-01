@@ -14,6 +14,7 @@ python manage.py startapp orders # for order management
 python manage.py startapp reviews
 # Test Db
 python manage.py dbshell
+python manage.py collectstatic
 ```
 
 #### Project Structure 
