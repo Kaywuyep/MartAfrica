@@ -151,3 +151,14 @@ GET    /api/products/admin/low-stock/     # Low stock products
 GET   /api/{id}/reviews
 POST  /product/{id}/reviews
 ```
+
+#### SWAGGER DOCUMENTAION
+```http
+GET /swagger       # web UI 
+GET /swagger-docs  # to download the documentation 
+```
+on my live hosting
+```http
+https://martafrica.onrender.com/swagger/
+https://martafrica.onrender.com/swagger-docs/
+```
