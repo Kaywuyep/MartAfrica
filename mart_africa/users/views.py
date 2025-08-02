@@ -22,7 +22,7 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
-    
+
     @extend_schema(
         summary="Register a new user",
         description="Create a new user account with email, fullname and password",
@@ -35,10 +35,10 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            
+
             # Generate tokens for the new user
             refresh = RefreshToken.for_user(user)
-            
+
             return Response({
                 'message': 'User registered successfully',
                 'user': UserSerializer(user).data,
@@ -47,37 +47,42 @@ class RegisterView(generics.CreateAPIView):
                     'access': str(refresh.access_token),
                 }
             }, status=status.HTTP_201_CREATED)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class CustomTokenObtainPairView(TokenObtainPairView):
-#     """
-#     Custom login view with user data in response
-#     """
-#     serializer_class = CustomTokenObtainPairSerializer
-    
-#     @extend_schema(
-#         summary="User login",
-#         description="Authenticate user and return JWT tokens with user data",
-#         responses={
-#             200: OpenApiResponse(description="Login successful"),
-#             401: OpenApiResponse(description="Invalid credentials")
-#         }
-#     )
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         if serializer.is_valid():
-#             user = User.objects.get(email=request.data['email'])
-#             tokens = serializer.validated_data
-            
-#             return Response({
-#                 'message': 'Login successful',
-#                 'user': UserSerializer(user).data,
-#                 'tokens': tokens
-#             }, status=status.HTTP_200_OK)
-        
-#         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+class AdminRegisterView(generics.CreateAPIView):
+    """
+    Register an admin user (staff or superuser)
+    """
+    queryset = User.objects.all()
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [permissions.AllowAny]  # You can limit this later
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+
+            # Make the user an admin
+            user.is_admin = True
+            user.is_staff = True
+            user.is_superuser = True  # Optional
+            user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'message': 'Admin user registered successfully',
+                'user': UserSerializer(user).data,
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """

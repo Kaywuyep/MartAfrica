@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # Authentication endpoints (accessible to all)
     path('register/', views.RegisterView.as_view(), name='user-register'),
+    path("admin/register/", views.AdminRegisterView.as_view(), name="admin-register"),
     path('login/', views.CustomTokenObtainPairView.as_view(), name='user-login'),
     path('logout/', views.LogoutView.as_view(), name='user-logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
